@@ -93,6 +93,9 @@ char moveResizeWindow(Display *dpy,
 		return 0;
 	}
 	XMoveResizeWindow(dpy, win, x, y, w, h);
+	return 0;
+	//this function will almost definitely break on a lot of multi monitor
+	//setups, and also a lot of single monitor setups, and also a lot of setups.
 }
 
 void setProperty(Display *dpy, Window win,

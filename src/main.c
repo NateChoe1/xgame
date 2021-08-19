@@ -7,6 +7,8 @@
 
 #include "help.h"
 
+void level1(Display *dpy, Window root, Window win, Window player);
+
 void setWindowName(Display *dpy, Window win, char *windowName) {
 	XTextProperty prop;
 	Xutf8TextListToTextProperty(dpy, &windowName, 1, XUTF8StringStyle, &prop);
@@ -60,7 +62,7 @@ int main() {
 	XAllocColor(dpy, colorMap, &red);
 
 	Window player = XCreateSimpleWindow(dpy, DefaultRootWindow(dpy),
-			100, 100, 10, 10, 2, black, red.pixel);
+			100, 100, 10, 10, 0, black, red.pixel);
 	XSelectInput(dpy, win, KeyPressMask | KeyReleaseMask | ExposureMask);
 	XSetWindowAttributes attr = {
 		.override_redirect = True,
@@ -68,13 +70,5 @@ int main() {
 	XChangeWindowAttributes(dpy, player, CWOverrideRedirect, &attr);
 	XMapWindow(dpy, player);
 
-	moveResizeWindow(dpy, root, win, 100, 100, 500, 400);
-
-	for (;;) {
-		XEvent e;
-		XNextEvent(dpy, &e);
-		if (e.type == Expose)
-			break;
-	}
-
+	level1(dpy, root, win, player);
 }
