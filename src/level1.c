@@ -1,14 +1,8 @@
 #include <unistd.h>
 #include <X11/Xlib.h>
-#include <X11/XKBlib.h>
-#include <X11/keysym.h>
 
 #include "help.h"
-
-#define UP_PRESSED 0
-#define RIGHT_PRESSED 1
-#define LEFT_PRESSED 2
-#define TOTAL_CONTROLS 3
+#include "levels.h"
 
 void level1(Display *dpy, Window root, Window win, Window player) {
 	int windowX, windowY, x, y, ySpeed, width, height;
@@ -48,23 +42,9 @@ void level1(Display *dpy, Window root, Window win, Window player) {
 	for (;;) {
 		XRaiseWindow(dpy, win);
 		XRaiseWindow(dpy, player);
-		while (XPending(dpy)) {
-			XEvent e;
-			XNextEvent(dpy, &e);
-			if (e.type != KeyPress && e.type != KeyRelease)
-				continue;
-			switch (XkbKeycodeToKeysym(dpy, e.xkey.keycode, 0, e.xkey.state)) {
-				case XK_Up:
-					keysPressed[UP_PRESSED] = e.type == KeyPress;
-					break;
-				case XK_Right:
-					keysPressed[RIGHT_PRESSED] = e.type == KeyPress;
-					break;
-				case XK_Left:
-					keysPressed[LEFT_PRESSED] = e.type == KeyPress;
-					break;
-			}
-		}
+		updateKeysPressed(dpy, keysPressed);
+		updatePosition(dpy, keysPressed, width, height,
+				&x, &y, &ySpeed);
 		int oldWindowX = windowX;
 		int oldWindowY = windowY;
 		XTranslateCoordinates(dpy, win, root, 0, 0,
@@ -72,16 +52,6 @@ void level1(Display *dpy, Window root, Window win, Window player) {
 		XGetGeometry(dpy, win, &unusedWindow, &unusedInt, &unusedInt,
 				&width, &height,
 				&unusedInt, &unusedInt);
-
-		if (keysPressed[LEFT_PRESSED])
-			x -= 5;
-		if (keysPressed[RIGHT_PRESSED])
-			x += 5;
-		if (keysPressed[UP_PRESSED] && y == height - 10 && ySpeed == 0)
-			ySpeed = -15;
-		y += ySpeed;
-		if (y < height - 10)
-			ySpeed += 1;
 
 		char windowMoved = 0;
 		if (y > height - 10 || y == height - 10 && ySpeed > 0) {

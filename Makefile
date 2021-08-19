@@ -1,18 +1,16 @@
 CFLAGS := -O2 -march=native
 LIBS = -lX11
 
-all: work/main.o work/help.o work/level1.o build/xgame
+SRC = $(wildcard src/*.c)
+OBJ = $(shell echo $(SRC) | sed "s/\.c/.o/g" | sed "s/src/work/g")
+#There's probably a better way to do this, but I'm no Makefile expert.
 
-work/main.o: src/main.c src/help.h
-	$(CC) src/main.c $(CFLAGS) -c -o work/main.o
+all: $(OBJ) build/xgame
 
-work/help.o: src/help.c src/help.h
-	$(CC) src/help.c $(CFLAGS) -c -o work/help.o
+work/%.o: src/%.c
+	$(CC) $< $(CFLAGS) -c -o $@
 
-work/level1.o: src/level1.c src/help.h
-	$(CC) src/level1.c $(CFLAGS) -c -o work/level1.o
-
-build/xgame: work/*.o
+build/xgame: $(wildcard work/*.o)
 	$(CC) work/*.o $(LIBS) -o build/xgame
 
 clean: work/*.o
