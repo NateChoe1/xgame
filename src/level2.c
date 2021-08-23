@@ -1,9 +1,6 @@
-#include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <X11/Xlib.h>
-#include <X11/Xutil.h>
-#include <X11/Xatom.h>
 
 #include "help.h"
 #include "levels.h"
@@ -73,12 +70,6 @@ void level2(Display *dpy, Window root, Window win, Window player, int screen) {
 			WINDOW_X, WINDOW_Y, WINDOW_WIDTH, WINDOW_HEIGHT);
 
 	for (;;) {
-		if (standingOnBorder) {
-			XTextProperty prop;
-			XGetTextProperty(dpy, standingWindow, &prop, atoms[_NET_WM_NAME]);
-			puts(prop.value);
-		}
-
 		XRaiseWindow(dpy, win);
 		XRaiseWindow(dpy, player);
 		if (y > HeightOfScreen(ScreenOfDisplay(dpy, screen))) {
