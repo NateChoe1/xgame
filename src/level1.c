@@ -11,33 +11,17 @@ void level1(Display *dpy, Window root, Window win, Window player) {
 	int unusedInt;
 	//used in functions which require a pointer but which I don't want.
 
+	moveResizeWindow(dpy, root, win, 300, 300, 500, 400);
+	waitForResize(dpy, root, win, windowX, windowY);
 	XTranslateCoordinates(dpy, win, root, 0, 0,
 			&windowX, &windowY, &unusedWindow);
-	moveResizeWindow(dpy, root, win, 300, 300, 500, 400);
-	XFlush(dpy);
-	for (;;) {
-		int oldWindowX = windowX;
-		int oldWindowY = windowY;
-		XTranslateCoordinates(dpy, win, root, 0, 0,
-				&windowX, &windowY, &unusedWindow);
-		if (windowX != oldWindowX || windowY != oldWindowY)
-			break;
-	}
-	//I have no idea why, but XSync doesn't work for this garbage on dwm, so I'm
-	//just doing this crap.
 	
 	x = 250;
 	y = 390;
 	ySpeed = 0;
 
-	int wmXOffset, wmYOffset;
-	//Some window managers (dwm) will move the window to the wrong place by an
-	//offset. This is to correct for that.
-
 	XTranslateCoordinates(dpy, win, root, 0, 0,
 			&windowX, &windowY, &unusedWindow);
-	wmXOffset = windowX - 300;
-	wmYOffset = windowY - 300;
 
 	for (;;) {
 		XRaiseWindow(dpy, win);
@@ -45,6 +29,11 @@ void level1(Display *dpy, Window root, Window win, Window player) {
 		updateKeysPressed(dpy, keysPressed);
 		updatePosition(dpy, keysPressed, width, height,
 				&x, &y, &ySpeed);
+		if (keysPressed[UP_PRESSED] && y == height - 10 && ySpeed == 0)
+			ySpeed = -15;
+		if (y < height - 10)
+			ySpeed += 1;
+
 		int oldWindowX = windowX;
 		int oldWindowY = windowY;
 		XTranslateCoordinates(dpy, win, root, 0, 0,
@@ -82,10 +71,10 @@ void level1(Display *dpy, Window root, Window win, Window player) {
 				y = height - 10;
 		}
 		else
-			moveResizeWindow(dpy, root, win,
-					windowX - wmXOffset, windowY - wmYOffset, width, height);
+			moveResizeWindow(dpy, root, win, windowX, windowY, width, height);
 		if (y < 0)
 			break;
+
 		XMoveWindow(dpy, player, windowX + x, windowY + y);
 
 		usleep(16666);

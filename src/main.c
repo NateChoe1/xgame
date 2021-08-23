@@ -6,8 +6,10 @@
 #include <X11/Xutil.h>
 
 #include "help.h"
+#include "levels.h"
 
 void level1(Display *dpy, Window root, Window win, Window player);
+void level2(Display *dpy, Window root, Window win, Window player, int screen);
 
 void setWindowName(Display *dpy, Window win, char *windowName) {
 	XTextProperty prop;
@@ -55,6 +57,10 @@ int main() {
 	}
 	//map and wait for map
 
+	initVars(dpy, root, win);
+	//set up some basic things for the levels to use.
+
+
 	XColor red = {
 		.red = 0xffff,
 		.flags = DoRed,
@@ -71,4 +77,5 @@ int main() {
 	XMapWindow(dpy, player);
 
 	level1(dpy, root, win, player);
+	level2(dpy, root, win, player, screen);
 }

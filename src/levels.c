@@ -3,6 +3,11 @@
 #include <X11/XKBlib.h>
 
 #include "levels.h"
+#include "help.h"
+
+int wmXOffset, wmYOffset;
+//moveResizeWindow may be off due to the specifics of how your window manager
+//works, these variables store that offset.
 
 void updateKeysPressed(Display *dpy, char keysPressed[TOTAL_CONTROLS]) {
 	int pending = XPending(dpy);
@@ -31,10 +36,24 @@ void updatePosition(Display *dpy, char keysPressed[3], int width, int height,
 		*x -= 5;
 	if (keysPressed[RIGHT_PRESSED])
 		*x += 5;
-	if (keysPressed[UP_PRESSED] && *y == height - 10 && *ySpeed == 0)
-		*ySpeed = -15;
-
 	*y = *y + *ySpeed;
-	if (*y < height - 10)
-		*ySpeed += 1;
+}
+
+void initVars(Display *dpy, Window root, Window win) {
+	Window unusedWindow;
+	int windowX, windowY;
+	wmXOffset = wmYOffset = 0;
+	int oldWindowX, oldWindowY;
+	XTranslateCoordinates(dpy, win, root, 0, 0,
+			&windowX, &windowY, &unusedWindow);
+	moveResizeWindow(dpy, root, win, START_X, START_Y,
+			WINDOW_WIDTH, WINDOW_HEIGHT);
+	//these values are arbitrary.
+	waitForResize(dpy, root, win, windowX, windowY);
+
+	XTranslateCoordinates(dpy, win, root, 0, 0,
+			&wmXOffset, &wmYOffset, &unusedWindow);
+
+	wmXOffset -= START_X;
+	wmYOffset -= START_Y;
 }

@@ -1,5 +1,7 @@
 char initAtoms(Display *dpy, Window root);
 char extensionSupported(int extension);
+void waitForResize(Display *dpy, Window root, Window win,
+		int windowX, int windowY);
 char moveResizeWindow(Display *dpy,
 		Window root, Window win,
 		int x, int y, int w, int h);

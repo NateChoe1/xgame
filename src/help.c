@@ -69,9 +69,27 @@ char extensionSupported(int extension) {
 	return 0;
 }
 
+extern int wmXOffset, wmYOffset;
+
+void waitForResize(Display *dpy, Window root, Window win,
+		int windowX, int windowY) {
+	Window unusedWindow;
+	for (;;) {
+		int newWindowX, newWindowY;
+		XTranslateCoordinates(dpy, win, root, 0, 0,
+				&newWindowX, &newWindowY, &unusedWindow);
+		if (windowX != newWindowX || windowY != newWindowY)
+			break;
+	}
+	//I have no idea why, but XSync doesn't work for this garbage on dwm, so I'm
+	//just doing this crap.
+}
+
 char moveResizeWindow(Display *dpy,
 		Window root, Window win,
 		int x, int y, int w, int h) {
+	x -= wmXOffset;
+	y -= wmYOffset;
 	if (extensionSupported(_NET_MOVERESIZE_WINDOW)) {
 		XClientMessageEvent event = {
 			.type = ClientMessage,
