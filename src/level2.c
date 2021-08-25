@@ -4,62 +4,13 @@
 
 #include "help.h"
 #include "levels.h"
-
-#define BETWEEN(value, min, max) ((min <= value) && (value < max))
-
-typedef struct {
-	int left;
-	int right;
-	int y;
-	Window win;
-} Border;
-//just a wall that the player can't fall down through.
-
-Window standingWindow;
-char standingOnBorder;
-
-char borderWorks(Border border, int x, int y, int oldY) {
-	if (BETWEEN(x, border.left - PLAYER_SIZE, border.right))
-		if (oldY <= border.y - PLAYER_SIZE &&
-		    y >= border.y - PLAYER_SIZE)
-			return 1;
-	return 0;
-}
-
-int stoppingBorder(Border *borders, int nborders,
-		int x, int y, int oldY, Window win) {
-	if (standingOnBorder) {
-		for (int i = 0; i < nborders; i++)
-			if (borders[i].win == standingWindow && borders[i].win != win)
-				if (BETWEEN(x, borders[i].left, borders[i].right)) 
-					return i;
-		//for each border, if the current border matches windows, and the player
-		//hasn't fallen off or anything, then return the current border being
-		//stood on.
-		standingOnBorder = 0;
-	}
-	for (int i = 0; i < nborders; i++)
-		if (borderWorks(borders[i], x, y, oldY)) {
-			standingOnBorder = 1;
-			standingWindow = borders[i].win;
-			return i;
-		}
-	return -1;
-}
-char onBound(Border *borders, int nborders, int x, int y) {
-	for (int i = 0; i < nborders; i++)
-		if (borderWorks(borders[i], x, y, y))
-			return 1;
-	return 0;
-}
+#include "windowstop.h"
 
 void level2(Display *dpy, Window root, Window win, Window player, int screen) {
 	Window unusedWindow;
 	int unusedInt;
 	unsigned long unusedLong;
 
-	Window *topLevels;
-	unsigned int topCount;
 	char keysPressed[TOTAL_CONTROLS] = {0};
 	int width, height;
 	int windowX, windowY;
@@ -86,46 +37,25 @@ void level2(Display *dpy, Window root, Window win, Window player, int screen) {
 				width != WINDOW_WIDTH || height != WINDOW_HEIGHT)
 			moveResizeWindow(dpy, root, win,
 					WINDOW_X, WINDOW_Y, WINDOW_WIDTH, WINDOW_HEIGHT);
-		XQueryTree(dpy, root, &unusedWindow, &unusedWindow,
-				&topLevels, &topCount);
 		//this will probably break on fvwm, but this entire game will probably
 		//break on every window manager.
 		updateKeysPressed(dpy, keysPressed);
 		updatePosition(dpy, keysPressed, width, height, &x, &y, &ySpeed);
 
-		Border *borders = malloc(sizeof(Border) * (topCount + 1));
-		int borderCount = 0;
-		borders[borderCount++] = (Border) {
-			.left = WINDOW_X,
-			.right = WINDOW_X + width,
-			.y = WINDOW_Y + height,
-			.win = win,
-		};
-		for (int i = 0; i < topCount; i++) {
-			int currentWidth, currentHeight, currentX, currentY, borderWidth;
-			XGetGeometry(
-					dpy, topLevels[i], &unusedWindow,
-					&currentX, &currentY,
-					&currentWidth, &currentHeight,
-					&borderWidth,
-					&unusedInt
-			);
-			borders[borderCount++] = (Border) {
-				.left = currentX - borderWidth,
-				.right = currentX + currentWidth + borderWidth,
-				.y = currentY,
-				.win = topLevels[i],
-			};
+		int borderCount;
+		Border *borders = createBorders(dpy, root, win, &borderCount);
+		for (int i = 0; i < borderCount; i++) {
+			printf("%d %d %d\n", borders[i].left, borders[i].right, borders[i].y);
 		}
-		XFree(topLevels);
 
-		int stoppedBorder = stoppingBorder(borders, topCount + 1,
+		int stoppedBorder = stoppingBorder(borders, borderCount,
 				x, y, oldY, win);
-		if (stoppedBorder >= 0 && ySpeed > 0) {
+		printf("%d\n", stoppedBorder);
+		if (stoppedBorder >= 0 && ySpeed >= 0) {
 			y = borders[stoppedBorder].y - 10;
 			ySpeed = 0;
 		}
-		if (ySpeed == 0 && onBound(borders, topCount + 1, x, y)) {
+		if (ySpeed == 0 && onBound(borders, borderCount, x, y)) {
 			if (keysPressed[UP_PRESSED]) {
 				ySpeed = -JUMP_POWER;
 				standingOnBorder = 0;

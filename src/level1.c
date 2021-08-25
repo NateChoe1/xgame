@@ -24,7 +24,6 @@ void level1(Display *dpy, Window root, Window win, Window player) {
 			&windowX, &windowY, &unusedWindow);
 
 	for (;;) {
-		XRaiseWindow(dpy, win);
 		XRaiseWindow(dpy, player);
 		updateKeysPressed(dpy, keysPressed);
 		updatePosition(dpy, keysPressed, width, height,

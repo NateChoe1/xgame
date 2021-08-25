@@ -12,6 +12,8 @@
 #define JUMP_POWER 15
 #define PLAYER_SIZE 10
 
+#define BETWEEN(value, min, max) ((min <= value) && (value < max))
+
 void updateKeysPressed(Display *dpy, char keysPressed[3]);
 void updatePosition(Display *dpy, char keysPressed[3], int width, int height,
 			int *x, int *y, int *ySpeed);
