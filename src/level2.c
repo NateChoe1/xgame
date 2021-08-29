@@ -44,13 +44,9 @@ void level2(Display *dpy, Window root, Window win, Window player, int screen) {
 
 		int borderCount;
 		Border *borders = createBorders(dpy, root, win, &borderCount);
-		for (int i = 0; i < borderCount; i++) {
-			printf("%d %d %d\n", borders[i].left, borders[i].right, borders[i].y);
-		}
 
 		int stoppedBorder = stoppingBorder(borders, borderCount,
 				x, y, oldY, win);
-		printf("%d\n", stoppedBorder);
 		if (stoppedBorder >= 0 && ySpeed >= 0) {
 			y = borders[stoppedBorder].y - 10;
 			ySpeed = 0;

@@ -10,6 +10,7 @@
 
 void level1(Display *dpy, Window root, Window win, Window player);
 void level2(Display *dpy, Window root, Window win, Window player, int screen);
+void level3(Display *dpy, Window root, Window win, Window player);
 
 void setWindowName(Display *dpy, Window win, char *windowName) {
 	XTextProperty prop;
@@ -78,4 +79,5 @@ int main() {
 
 	level1(dpy, root, win, player);
 	level2(dpy, root, win, player, screen);
+	level3(dpy, root, win, player);
 }
