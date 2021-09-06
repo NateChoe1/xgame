@@ -77,7 +77,7 @@ int main() {
 	XChangeWindowAttributes(dpy, player, CWOverrideRedirect, &attr);
 	XMapWindow(dpy, player);
 
-//	level1(dpy, root, win, player);
-//	level2(dpy, root, win, player, screen);
+	level1(dpy, root, win, player);
+	level2(dpy, root, win, player, screen);
 	level3(dpy, root, win, player);
 }
